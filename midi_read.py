@@ -5,6 +5,7 @@ Latest Change: 11.04.2021
 """
 
 import mido
+import myconstants
 
 
 def midi_to_note(midi_note):
@@ -59,12 +60,40 @@ def main():
 
 
 
-        # print(mid)
+        for msg in mid:
+                if not msg.is_meta:
+                        print(msg)
+                        
+
+        offset = 11 #until now we only have the notes E5, F5#, G5#, A5, B5, C6#, D6# available, so to get a valid m-code offset the midi notes
+        notes = list()
+        time_note_played = list()
+        time_pause_between_notes = list()
 
         for msg in mid:
-                # if msg.type == 'note_on' or msg.type == 'note_off':
+                if msg.type == 'note_off':
+                        time_note_played.append(round(msg.time,4))
                 if msg.type == 'note_on':
-                        print(midi_to_note(msg.note))
+                        notes.append(midi_to_note(msg.note + offset))
+                        time_pause_between_notes.append(round(msg.time,4))
+
+
+        file_overhead = f"#define $POSE {myconstants.POSE} \n#define $DOWN {myconstants.DOWN} \n"
+
+
+        with open("entchen.mc", 'w') as my_file:
+                my_file.write(file_overhead)
+
+                                 
+
+
+        
+
+        print(notes)
+        print([round(num,2) for num in time_note_played])
+        print([round(num,2) for num in time_pause_between_notes])
+ 
+
 
 
 
